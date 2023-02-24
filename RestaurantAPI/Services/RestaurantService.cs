@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities;
-using RestaurantAPI.Exceptions;
 using RestaurantAPI.Models;
 
 namespace RestaurantAPI.Services
@@ -11,13 +9,11 @@ namespace RestaurantAPI.Services
     {
         private readonly IMapper _mapper;
         private readonly RestaurantDbContext _dbContext;
-        private readonly ILogger<RestaurantService> _logger;
 
-        public RestaurantService(IMapper mapper, RestaurantDbContext dbContext, ILogger<RestaurantService> logger)
+        public RestaurantService(IMapper mapper, RestaurantDbContext dbContext)
         {
             _mapper = mapper;
             _dbContext = dbContext;
-            _logger = logger;
         }
 
 
@@ -40,31 +36,18 @@ namespace RestaurantAPI.Services
         {
             var restaurant = _dbContext.Restaurants.Include(e => e.Address)
             .Include(e => e.Dishes).FirstOrDefault(x => x.Id == id);
-            if(restaurant is null) throw new NotFoundException("Not found entity to delete");
             var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
             return restaurantDto;
         }
 
-        public void Delete(int id)
+        public bool Delete(int id)
         {
-            _logger.LogError($"Entity with id {id} is going to be deleted");
             var restaurant = _dbContext.Restaurants.FirstOrDefault(e => e.Id == id);
-            if (restaurant is null) throw new NotFoundException("Not found entity to delete");
+            if (restaurant is null) return false;
 
             _dbContext.Restaurants.Remove(restaurant);
             _dbContext.SaveChanges();
-        }
-
-        public void Modify(ModifyRestaurantDto dto, int id)
-        {
-            var restaurantToModify = _dbContext.Restaurants.FirstOrDefault(e=>e.Id == id);
-            if(restaurantToModify is null) throw new NotFoundException("Not found entity to modify");
-            restaurantToModify.Name= dto.Name;
-            restaurantToModify.Description= dto.Description;
-            restaurantToModify.HasDeliviery= dto.HasDeliviery;
-            _dbContext.SaveChanges();
+            return true;
         }
     }
-
-
 }
