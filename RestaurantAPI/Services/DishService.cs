@@ -50,5 +50,21 @@ namespace RestaurantAPI.Services
             if (restaurant is null) throw new NotFoundException("Not found equal restaurant by given ID");
             return restaurant;
         }
+
+        public void Delete(int restaurantId, int dishId)
+        {
+            Restaurant restaurant = GetRestaurantById(restaurantId);
+            var dish = restaurant.Dishes.FirstOrDefault(e => e.Id == dishId);
+            if (dish == null) throw new NotFoundException("Not found equal dish by given ID");
+            _dbContext.Dishes.Remove(dish);
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteAll(int restaurantId)
+        {
+            Restaurant restaurant = GetRestaurantById(restaurantId);
+            _dbContext.RemoveRange(restaurant.Dishes);
+            _dbContext.SaveChanges();
+        }
     }
 }
