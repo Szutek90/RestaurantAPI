@@ -1,4 +1,0 @@
-﻿[*.cs]
-
-# CS8981: Nazwa typu zawiera tylko małe litery ascii. Takie nazwy mogą zostać zarezerwowane dla języka.
-dotnet_diagnostic.CS8981.severity = none
