@@ -35,19 +35,5 @@ namespace RestaurantAPI.Controllers
             var dishes = _dishService.GetAll(restaurantId);
             return Ok(dishes);
         }
-
-        [HttpDelete("{dishId}")]
-        public ActionResult Delete([FromRoute] int restaurantId, [FromRoute] int dishId)
-        {
-            _dishService.Delete(restaurantId, dishId);
-            return Ok();
-        }
-
-        [HttpDelete]
-        public ActionResult DeleteAll([FromRoute]int restaurantId)
-        {
-            _dishService.DeleteAll(restaurantId);
-            return Ok();
-        }
     }
 }
