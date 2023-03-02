@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using RestaurantAPI.Authorizations;
 
 var builder = WebApplication.CreateBuilder(args);
 AuthenticationSettings authenticationSettings = new AuthenticationSettings();
@@ -25,6 +27,7 @@ builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("HasNationality", policy => policy.RequireClaim("Nationality"));
+    options.AddPolicy("Atleast30", policy => policy.AddRequirements(new MinimumAgeRequirement(50)));
 });
 builder.Services.AddAuthentication(options =>
 {
@@ -42,6 +45,7 @@ builder.Services.AddAuthentication(options =>
 
 });
 
+builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
 builder.Services.AddSingleton(authenticationSettings);
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();

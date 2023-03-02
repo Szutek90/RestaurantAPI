@@ -47,9 +47,9 @@ namespace RestaurantAPI.Services
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, $"{user.FirstName}"),
-                new Claim(ClaimTypes.Surname, $"{user.LastName}"),
-                new Claim(ClaimTypes.Role, $"{user.Role.Name}")
+                new Claim(ClaimTypes.Name, $"{user.Email}"),
+                new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
+                new Claim("DateOfBirth", user.DateOfBirth.Value.ToString("yyyy-MM-dd"))
             };
             if(!String.IsNullOrEmpty(user.Nationality)) claims.Add(new Claim("Nationality", user.Nationality));
             var tokenHandler = new JwtSecurityTokenHandler();
