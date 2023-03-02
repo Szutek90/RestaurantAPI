@@ -21,6 +21,12 @@ namespace RestaurantAPI.Controllers
             _accountService.Create(dto);
             return Ok();
         }
+        [HttpDelete("{userId}")]
+        public ActionResult Delete([FromRoute] int userId)
+        {
+            _accountService.Delete(userId);
+            return Ok();
+        }
 
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginUserDto dto)

@@ -22,6 +22,10 @@ AuthenticationSettings authenticationSettings = new AuthenticationSettings();
 // Add services to the container.
 
 builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("HasNationality", policy => policy.RequireClaim("Nationality"));
+});
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

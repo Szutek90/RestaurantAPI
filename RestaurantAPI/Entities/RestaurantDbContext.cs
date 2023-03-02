@@ -18,6 +18,7 @@ namespace RestaurantAPI.Entities
             modelBuilder.Entity<User>().Property(n => n.Email).IsRequired();
             modelBuilder.Entity<User>().Property(n => n.FirstName).IsRequired(false);
             modelBuilder.Entity<User>().Property(n => n.LastName).IsRequired(false);
+            modelBuilder.Entity<User>().Property(n => n.Nationality).IsRequired(false);
             modelBuilder.Entity<Role>().Property(n => n.Name).IsRequired();
             modelBuilder.Entity<Dish>().Property(n => n.Name).IsRequired();
             modelBuilder.Entity<Dish>().Property(n => n.Description).IsRequired(false);

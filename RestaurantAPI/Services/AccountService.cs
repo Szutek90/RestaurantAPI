@@ -63,5 +63,13 @@ namespace RestaurantAPI.Services
                 );
             return tokenHandler.WriteToken(token);
         }
+
+        public void Delete(int id)
+        {
+            var user = _dbContext.Users.FirstOrDefault(e=>e.Id== id);
+            if (user is null) throw new NotFoundException("Not found corresponding user to delete");
+            _dbContext.Users.Remove(user);
+            _dbContext.SaveChanges();
+        }
     }
 }

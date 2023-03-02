@@ -6,5 +6,6 @@ namespace RestaurantAPI.Services
     {
         void Create(CreateUserDto dto);
         string Login(LoginUserDto dto);
+        void Delete(int id);
     }
 }
