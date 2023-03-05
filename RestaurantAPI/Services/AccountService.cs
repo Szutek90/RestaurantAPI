@@ -31,7 +31,9 @@ namespace RestaurantAPI.Services
                 DateOfBirth = dto.DateOfBirth,
                 Email = dto.Email,
                 Nationality = dto.Nationality,
-                RoleId = dto.RoleId
+                RoleId = dto.RoleId,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName
             };
             userToAdd.PasswordHash = _passwordHasher.HashPassword(userToAdd, dto.Password);
             _dbContext.Users.Add(userToAdd);

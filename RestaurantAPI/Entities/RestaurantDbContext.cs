@@ -15,6 +15,7 @@ namespace RestaurantAPI.Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Restaurant>().Property(n => n.Name).IsRequired().HasMaxLength(25);
+            modelBuilder.Entity<Restaurant>().Property(i=>i.CreatedById).IsRequired().HasDefaultValue(1);
             modelBuilder.Entity<User>().Property(n => n.Email).IsRequired();
             modelBuilder.Entity<User>().Property(n => n.FirstName).IsRequired(false);
             modelBuilder.Entity<User>().Property(n => n.LastName).IsRequired(false);
