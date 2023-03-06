@@ -28,6 +28,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("HasNationality", policy => policy.RequireClaim("Nationality"));
     options.AddPolicy("Atleast30", policy => policy.AddRequirements(new MinimumAgeRequirement(30)));
+    options.AddPolicy("TwoRestaurants", policy => policy.AddRequirements(new TwoRestaurantsRequirement(3)));
 });
 builder.Services.AddAuthentication(options =>
 {
@@ -45,11 +46,11 @@ builder.Services.AddAuthentication(options =>
 
 });
 
-
-builder.Services.AddScoped<IUserContextService, UserContextService>();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuthorizationHandler, TwoRestaurantsRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(authenticationSettings);
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();

@@ -38,6 +38,7 @@ namespace RestaurantAPI.Controllers
             return Ok();
         }
 
+        [Authorize(Policy = "TwoRestaurants")]
         [HttpGet]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {

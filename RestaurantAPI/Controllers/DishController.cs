@@ -6,8 +6,8 @@ using RestaurantAPI.Services;
 namespace RestaurantAPI.Controllers
 {
     [ApiController]
-    [Route("/api/restaurant/{restaurantId}/dish")]
     [Authorize]
+    [Route("/api/restaurant/{restaurantId}/dish")]
     public class DishController : ControllerBase
     {
         private readonly IDishService _dishService;
@@ -30,6 +30,7 @@ namespace RestaurantAPI.Controllers
             DishDto dish = _dishService.GetById(restaurantId, dishId);
             return Ok(dish);
         }
+
         [Authorize(Policy = "Atleast30")]
         [HttpGet]
         public ActionResult<IEnumerable<DishDto>> GetAll([FromRoute]int restaurantId)
