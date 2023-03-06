@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Models;
 using RestaurantAPI.Services;
+using System.Security.Claims;
 
 namespace RestaurantAPI.Controllers
 {
@@ -25,15 +26,16 @@ namespace RestaurantAPI.Controllers
         [Authorize(Roles = "Manager, Admin")]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto) 
         {
-            int id = _restaurantService.Create(dto);
-
+            int userId = int.Parse(User.FindFirst(e => e.Type == ClaimTypes.NameIdentifier).Value);
+            int id = _restaurantService.Create(dto, userId);
+            
             return Created($"api/restaurant/{id}", null);
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] int id)
         {
-            _restaurantService.Delete(id);
+            _restaurantService.Delete(id, User);
             return Ok();
         }
 
@@ -55,7 +57,7 @@ namespace RestaurantAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult ModifyRestaurant([FromBody] ModifyRestaurantDto dto, [FromRoute]int id)
         {
-            _restaurantService.Modify(dto, id);
+            _restaurantService.Modify(dto, id, User);
             return Ok();
         }
     }

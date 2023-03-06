@@ -27,7 +27,7 @@ builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("HasNationality", policy => policy.RequireClaim("Nationality"));
-    options.AddPolicy("Atleast30", policy => policy.AddRequirements(new MinimumAgeRequirement(50)));
+    options.AddPolicy("Atleast30", policy => policy.AddRequirements(new MinimumAgeRequirement(30)));
 });
 builder.Services.AddAuthentication(options =>
 {
@@ -46,12 +46,14 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 builder.Services.AddSingleton(authenticationSettings);
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 builder.Services.AddDbContext<RestaurantDbContext>();
 builder.Services.AddScoped<RestaurantSeeder>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<IDishService, DishService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

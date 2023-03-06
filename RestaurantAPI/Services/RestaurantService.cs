@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RestaurantAPI.Authorizations;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Exceptions;
 using RestaurantAPI.Models;
+using System.Security.Claims;
 
 namespace RestaurantAPI.Services
 {
@@ -12,18 +15,22 @@ namespace RestaurantAPI.Services
         private readonly IMapper _mapper;
         private readonly RestaurantDbContext _dbContext;
         private readonly ILogger<RestaurantService> _logger;
+        private readonly IAuthorizationService _authorizationService;
 
-        public RestaurantService(IMapper mapper, RestaurantDbContext dbContext, ILogger<RestaurantService> logger)
+        public RestaurantService(IMapper mapper, RestaurantDbContext dbContext, ILogger<RestaurantService> logger,
+            IAuthorizationService authorizationService)
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _logger = logger;
+            _authorizationService = authorizationService;
         }
 
 
-        public int Create(CreateRestaurantDto dto)
+        public int Create(CreateRestaurantDto dto, int userId)
         {
             var restaurantToAdd = _mapper.Map<Restaurant>(dto);
+            restaurantToAdd.CreatedById = userId;
             _dbContext.Restaurants.Add(restaurantToAdd);
             _dbContext.SaveChanges();
             return restaurantToAdd.Id;
@@ -45,20 +52,28 @@ namespace RestaurantAPI.Services
             return restaurantDto;
         }
 
-        public void Delete(int id)
+        public void Delete(int id, ClaimsPrincipal user)
         {
             _logger.LogError($"Entity with id {id} is going to be deleted");
             var restaurant = _dbContext.Restaurants.FirstOrDefault(e => e.Id == id);
             if (restaurant is null) throw new NotFoundException("Not found entity to delete");
-
+            var authorizationResult = _authorizationService.AuthorizeAsync(user, restaurant,
+            new ResourceOperationRequirement(ResourceOperation.Delete));
+            if (!authorizationResult.Result.Succeeded)
+                throw new ForbidException("You are not allowed to delete");
             _dbContext.Restaurants.Remove(restaurant);
             _dbContext.SaveChanges();
         }
 
-        public void Modify(ModifyRestaurantDto dto, int id)
+        public void Modify(ModifyRestaurantDto dto, int id, ClaimsPrincipal user)
         {
+            
             var restaurantToModify = _dbContext.Restaurants.FirstOrDefault(e=>e.Id == id);
-            if(restaurantToModify is null) throw new NotFoundException("Not found entity to modify");
+            var authorizationResult = _authorizationService.AuthorizeAsync(user, restaurantToModify,
+                new ResourceOperationRequirement(ResourceOperation.Update));
+            if (!authorizationResult.IsCompletedSuccessfully)
+                throw new ForbidException("You are not allowed to do changes");
+            if (restaurantToModify is null) throw new NotFoundException("Not found entity to modify");
             restaurantToModify.Name= dto.Name;
             restaurantToModify.Description= dto.Description;
             restaurantToModify.HasDeliviery= dto.HasDeliviery;
