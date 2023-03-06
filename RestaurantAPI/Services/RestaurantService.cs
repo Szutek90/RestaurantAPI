@@ -16,21 +16,23 @@ namespace RestaurantAPI.Services
         private readonly RestaurantDbContext _dbContext;
         private readonly ILogger<RestaurantService> _logger;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
         public RestaurantService(IMapper mapper, RestaurantDbContext dbContext, ILogger<RestaurantService> logger,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _logger = logger;
             _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
 
 
-        public int Create(CreateRestaurantDto dto, int userId)
+        public int Create(CreateRestaurantDto dto)
         {
             var restaurantToAdd = _mapper.Map<Restaurant>(dto);
-            restaurantToAdd.CreatedById = userId;
+            restaurantToAdd.CreatedById = _userContextService.UserId;
             _dbContext.Restaurants.Add(restaurantToAdd);
             _dbContext.SaveChanges();
             return restaurantToAdd.Id;
@@ -52,12 +54,12 @@ namespace RestaurantAPI.Services
             return restaurantDto;
         }
 
-        public void Delete(int id, ClaimsPrincipal user)
+        public void Delete(int id)
         {
             _logger.LogError($"Entity with id {id} is going to be deleted");
             var restaurant = _dbContext.Restaurants.FirstOrDefault(e => e.Id == id);
             if (restaurant is null) throw new NotFoundException("Not found entity to delete");
-            var authorizationResult = _authorizationService.AuthorizeAsync(user, restaurant,
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, restaurant,
             new ResourceOperationRequirement(ResourceOperation.Delete));
             if (!authorizationResult.Result.Succeeded)
                 throw new ForbidException("You are not allowed to delete");
@@ -65,11 +67,11 @@ namespace RestaurantAPI.Services
             _dbContext.SaveChanges();
         }
 
-        public void Modify(ModifyRestaurantDto dto, int id, ClaimsPrincipal user)
+        public void Modify(ModifyRestaurantDto dto, int id)
         {
             
             var restaurantToModify = _dbContext.Restaurants.FirstOrDefault(e=>e.Id == id);
-            var authorizationResult = _authorizationService.AuthorizeAsync(user, restaurantToModify,
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, restaurantToModify,
                 new ResourceOperationRequirement(ResourceOperation.Update));
             if (!authorizationResult.IsCompletedSuccessfully)
                 throw new ForbidException("You are not allowed to do changes");
