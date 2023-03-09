@@ -1,4 +1,5 @@
-﻿using RestaurantAPI.Models;
+﻿using RestaurantAPI.Entities;
+using RestaurantAPI.Models;
 using System.Security.Claims;
 
 namespace RestaurantAPI.Services
@@ -10,5 +11,6 @@ namespace RestaurantAPI.Services
         RestaurantDto GetById(int id);
         void Delete(int id);
         void Modify(ModifyRestaurantDto dto, int id);
+        void BogusGenerate();
     }
 }

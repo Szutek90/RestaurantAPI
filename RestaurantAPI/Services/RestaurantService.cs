@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Authorizations;
@@ -80,6 +81,21 @@ namespace RestaurantAPI.Services
             restaurantToModify.Description= dto.Description;
             restaurantToModify.HasDeliviery= dto.HasDeliviery;
             _dbContext.SaveChanges();
+        }
+
+        public void BogusGenerate()
+        {
+            var restaurants = BogusGenerator.Seed();
+            _dbContext.AddRange(restaurants);
+            _dbContext.SaveChanges();
+            
+            /*
+            var restaurants = BogusGenerator.Seed();
+            var modified = _mapper.Map<List<Restaurant>>(restaurants);
+            foreach(var rest in modified)
+                _dbContext.Restaurants.Add(rest);
+            _dbContext.SaveChanges();
+            */
         }
     }
 

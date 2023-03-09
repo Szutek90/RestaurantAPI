@@ -60,5 +60,13 @@ namespace RestaurantAPI.Controllers
             _restaurantService.Modify(dto, id);
             return Ok();
         }
+
+        [HttpGet("bogus")]
+        [Authorize(Roles= "Admin")]
+        public ActionResult BogusSeed()
+        {
+            _restaurantService.BogusGenerate();
+            return Ok();
+        }
     }
 }
