@@ -39,11 +39,22 @@ namespace RestaurantAPI.Services
             return restaurantToAdd.Id;
         }
 
-        public IEnumerable<RestaurantDto> GetAll()
+        public PagedResult<RestaurantDto> GetAll(RestaurantQuery query)
         {
-            var restaurants = _dbContext.Restaurants.Include(e => e.Address).Include(e => e.Dishes).ToList();
+            var baseQuery = _dbContext.Restaurants.Include(e => e.Address).Include(e => e.Dishes)
+                .Where(e => query.searchPhrase == null || (e.Name.ToLower().Contains(query.searchPhrase.ToLower()) ||
+                e.Description.ToLower().Contains(query.searchPhrase.ToLower())));
+
+            var restaurants = baseQuery
+                .Skip(query.PageSize * (query.PageNumber-1)).Take(query.PageSize).ToList();
+
+            int totalItems = baseQuery.Count();
+
             var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
-            return restaurantsDto;
+            var pagedRestaurants =
+                new PagedResult<RestaurantDto>(restaurantsDto, query.PageSize, query.PageNumber,totalItems);
+
+            return pagedRestaurants;
         }
 
         public RestaurantDto GetById(int id)
@@ -88,14 +99,7 @@ namespace RestaurantAPI.Services
             var restaurants = BogusGenerator.Seed();
             _dbContext.AddRange(restaurants);
             _dbContext.SaveChanges();
-            
-            /*
-            var restaurants = BogusGenerator.Seed();
-            var modified = _mapper.Map<List<Restaurant>>(restaurants);
-            foreach(var rest in modified)
-                _dbContext.Restaurants.Add(rest);
-            _dbContext.SaveChanges();
-            */
+           
         }
     }
 

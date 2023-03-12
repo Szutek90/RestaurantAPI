@@ -40,9 +40,9 @@ namespace RestaurantAPI.Controllers
 
         [Authorize(Policy = "TwoRestaurants")]
         [HttpGet]
-        public ActionResult<IEnumerable<RestaurantDto>> GetAll()
+        public ActionResult<PagedResult<RestaurantDto>> GetAll([FromQuery] RestaurantQuery query)
         {
-            var restaurantsDto = _restaurantService.GetAll();
+            var restaurantsDto = _restaurantService.GetAll(query);
             return Ok(restaurantsDto);
         }
 
