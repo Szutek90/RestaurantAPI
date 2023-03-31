@@ -7,6 +7,7 @@ using RestaurantAPI.Authorizations;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Exceptions;
 using RestaurantAPI.Models;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace RestaurantAPI.Services
@@ -45,6 +46,21 @@ namespace RestaurantAPI.Services
                 .Where(e => query.searchPhrase == null || (e.Name.ToLower().Contains(query.searchPhrase.ToLower()) ||
                 e.Description.ToLower().Contains(query.searchPhrase.ToLower())));
 
+
+
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnSelector = new Dictionary<string, Expression<Func<Restaurant, string>>>()
+                {
+                    {nameof(Restaurant.Name), e=>e.Name },
+                    {nameof(Restaurant.Description), e=>e.Description },
+                    {nameof(Restaurant.Category), e=>e.Category }
+                };
+
+                baseQuery = query.SortDirection == SortDirection.ASC ? baseQuery.
+                    OrderBy(columnSelector[query.SortBy]):baseQuery.OrderByDescending(columnSelector[query.SortBy]);
+            }
+
             var restaurants = baseQuery
                 .Skip(query.PageSize * (query.PageNumber-1)).Take(query.PageSize).ToList();
 
@@ -64,6 +80,7 @@ namespace RestaurantAPI.Services
             if(restaurant is null) throw new NotFoundException("Not found entity to delete");
             var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
             return restaurantDto;
+
         }
 
         public void Delete(int id)
